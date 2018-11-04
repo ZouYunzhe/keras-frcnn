@@ -6,7 +6,8 @@ import time
 import numpy as np
 from optparse import OptionParser
 import pickle
-
+import os
+import json
 from keras import backend as K
 from keras.optimizers import Adam, SGD, RMSprop
 from keras.layers import Input
@@ -85,7 +86,22 @@ else:
     # set the path to weights based on backend and model
     C.base_net_weights = nn.get_weight_path()
 
-all_imgs, classes_count, class_mapping = get_data(options.train_path)
+if os.path.exists('./parsed_data/parsed_data.json'):
+    f = open('./parsed_data/test.json', 'r')
+    tmp = json.load(f)
+    f.close()
+    all_imgs = tmp['all_imgs']
+    classes_count = tmp['classes_count']
+    class_mapping = tmp['class_mapping']
+else:
+    all_imgs, classes_count, class_mapping = get_data(options.train_path)
+    tmp = dict()
+    tmp['all_imgs'] = all_imgs
+    tmp['classes_count'] = classes_count
+    tmp['class_mapping'] = class_mapping
+    f = open('./parsed_data/parsed_data.json', 'w')
+    json.dump(tmp, f)
+    f.close()
 
 if 'bg' not in classes_count:
     classes_count['bg'] = 0
